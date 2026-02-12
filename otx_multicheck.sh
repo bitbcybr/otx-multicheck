@@ -9,7 +9,7 @@ bold=$(tput bold)
 normal=$(tput sgr0)
 
 #description and usage
-echo -e "${bold}This script is processing a plain or txt file with multiple ip addresses (seperated with "\;" or "\," or one per line) to run a check on OTX platform.${normal} \nWorks for IPv4. IPv6 and URLs not yet supported.\n
+echo -e "${bold}This script is processing a plain or txt file with multiple ip addresses (seperated with "\;" or "\," or one per line) to run a check on OTX platform.${normal} \nWorks for IPv4. IPv6 is supported.\n
 It will output some interesting findings(more or less) from the APIs endpoints 'general' and 'malware'. Feel free to modify it on behalf of your needs and always keep FOSS in mind."
 echo -e "${bold}\nUsage:\n./otx_multicheck.sh [path/filename with your IPs] ${normal}"
 
