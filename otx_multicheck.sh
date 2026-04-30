@@ -50,11 +50,10 @@ echo "$proc_listfile" | while read -r ip; do
 
     pulse_count=$(echo "$general_response" | grep -o '"count"[^,]*'           | head -1 | grep -o '[0-9]*')
     ind_count=$(echo "$general_response"   | grep -o '"indicator_count"[^,]*' | head -1 | grep -o '[0-9]*')
-    ind_types=$(echo "$general_response"   | grep -o '"indicator_type_counts"[^}]*}' | head -1 \
-                    | grep -o '"[A-Za-z0-9_-]*"[[:space:]]*:[[:space:]]*[0-9]*' \
-                    | sed 's/"//g; s/ //g' | tr '\n' '  ')
+    ind_types=$(echo "$general_response"   | grep -o '"indicator_type_counts"[^}]*}' | head -1)
     message=$(echo "$general_response"     | grep -o '"message"[^,}]*'        | head -1 | sed 's/"message":[[:space:]]*//' | tr -d '"')
     mal_count=$(echo "$malware_response"   | grep -o '"count"[^,}]*'          | head -1 | grep -o '[0-9]*')
+    mal_detections=$(echo "$malware_response" | grep -o '"detections"[^}]*}' | head -1)
 
     sep="\e[2m$(printf '%.0s─' {1..54})\e[0m"
     col="\e[2m│\e[0m"
@@ -64,10 +63,25 @@ echo "$proc_listfile" | while read -r ip; do
     echo -e "$sep"
     printf "${col} %-20s ${col} %-28s ${col}\n" "OTX Pulses"         "${pulse_count:--}"
     printf "${col} %-20s ${col} %-28s ${col}\n" "Indicator Count"    "${ind_count:--}"
-    printf "${col} %-20s ${col} %-28s ${col}\n" "Indicator Types"    "${ind_types:--}"
     printf "${col} %-20s ${col} %-28s ${col}\n" "Malware Samples"    "${mal_count:--}"
     printf "${col} %-20s ${col} %-28s ${col}\n" "Validation Message" "${message:--}"
     echo -e "$sep"
-    printf "\e[2m  More info: \e[0m\e[1mhttps://otx.alienvault.com/indicator/ip/$ip\e[0m\n"
+
+    if [ -n "$ind_types" ]; then
+        echo -e "\n${bold}Indicator Types:${normal}"
+        echo "$ind_types" | grep -o '"[A-Za-z0-9_-]*"[[:space:]]*:[[:space:]]*[0-9]*' \
+            | sed 's/"//g; s/^[[:space:]]*//' \
+            | while read -r pair; do
+                printf "  \e[2m│\e[0m %-30s\n" "$pair"
+              done
+    fi
+
+    if [ -n "$mal_detections" ]; then
+        echo -e "\n${bold}Malware Detections:${normal}"
+        echo "  $mal_detections"
+    fi
+
+    printf "\n\e[2m  More info: \e[0m\e[1mhttps://otx.alienvault.com/indicator/ip/$ip\e[0m\n"
+    echo -e "--------------------------------------------------\n"
 
 done
